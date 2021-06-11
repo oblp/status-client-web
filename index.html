@@ -1,0 +1,58 @@
+<html lang="zh">
+<head>
+    <title>EaStack Status</title>
+    <script src="https://unpkg.com/vue@next"></script>
+</head>
+<body>
+<div id="root">
+    Counter: {{ counter }}
+    <p>
+        <span v-bind:title="message">
+            Hover your mouse over me for a few seconds to see my dynamically bound title!
+        </span>
+    </p>
+
+    <button v-on:click="sub">Sub</button>
+    <span v-if="seen">You seen me!</span>
+    <input v-model="message">
+
+    <p>
+        <ol>
+            <li v-for="todo in todos">
+                {{ todo.text }}
+            </li>
+        </ol>
+    </p>
+
+</div>
+<script>
+    const Counter = {
+        data() {
+            return {
+                counter: 0,
+                message: 'You load this page on ' + new Date().toLocaleString(),
+                seen: false,
+                todos: [
+                    {text: "Learn JS"},
+                    {text: "Learn Java"},
+                    {text: "Learn Julia"}
+                ]
+            }
+        },
+        mounted() {
+            setInterval(() => {
+                this.counter++
+                this.seen = this.counter % 2 === 0
+            }, 1000)
+        },
+        methods: {
+            sub() {
+                this.counter = this.counter - 1
+            }
+        }
+    }
+
+    Vue.createApp(Counter).mount('#root')
+</script>
+</body>
+</html>

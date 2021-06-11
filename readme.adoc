@@ -1,0 +1,3 @@
+= EaStack Status
+
+Show EaStack Server Status

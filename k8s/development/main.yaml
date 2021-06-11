@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eastack-status-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: eastack-status-web
+  template:
+    metadata:
+      labels:
+        app: eastack-status-web
+    spec:
+      imagePullSecrets:
+        - name: aliyun-docker-registry
+      containers:
+        - name: eastack-status-web
+          image: registry.cn-beijing.aliyuncs.com/eastack-projects/eastack-status-web
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-config-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+      volumes:
+        - name: nginx-config-volume
+          configMap:
+            name: nginx-conf
+            items:
+              - key: "nginx.conf"
+                path: "nginx.conf"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eastack-status-web
+spec:
+  ports:
+    - port: 80
+      name: http
+  type: LoadBalancer
+  selector:
+    app: eastack-status-web
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: eastack-status-web-ingress
+spec:
+  rules:
+    - host: "status.eastack.cn"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: eastack-status-web
+                port:
+                  number: 80
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data:
+  nginx.conf: |
+    events{
+    	worker_connections 1024;
+    }
+    http {
+    	include /etc/nginx/mime.types;
+
+    	server {
+    		listen 80;
+    		root /usr/share/nginx/html;
+    		index index.html;
+
+    		location / {
+    			try_files $uri $uri/ /index.html;
+    		}
+    	}
+    }

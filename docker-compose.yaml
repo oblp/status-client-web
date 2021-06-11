@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  eastack-status-web:
+#    build: .
+    image: eastack-status-web:latest
+    ports:
+      - 80:80
+  eastack-status-service:
+    image: eastack-status-service:latest
